@@ -1,7 +1,7 @@
 import { auth, signOut } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { MessageSquare, Languages, LogOut } from 'lucide-react'
+import { MessageSquare, Languages, LogOut, Users, Search } from 'lucide-react'
 
 export default async function AppLayout({ children }) {
   const session = await auth()
@@ -9,7 +9,6 @@ export default async function AppLayout({ children }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Top nav */}
       <header className="sticky top-0 z-50 border-b"
         style={{
           background: 'hsl(222 47% 5% / 0.9)',
@@ -17,7 +16,6 @@ export default async function AppLayout({ children }) {
           backdropFilter: 'blur(16px)',
         }}>
         <div className="max-w-screen-xl mx-auto px-4 h-14 flex items-center justify-between">
-          {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 group-hover:shadow-[0_0_15px_hsl(185_100%_50%/0.4)]"
               style={{
@@ -32,13 +30,13 @@ export default async function AppLayout({ children }) {
             </span>
           </Link>
 
-          {/* Nav links */}
           <nav className="flex items-center gap-1">
             <NavLink href="/dashboard" icon={<MessageSquare className="w-4 h-4" />} label="Chats" />
             <NavLink href="/languages" icon={<Languages className="w-4 h-4" />} label="Languages" />
+            <NavLink href="/friends" icon={<Users className="w-4 h-4" />} label="Friends" />
+            <NavLink href="/users" icon={<Search className="w-4 h-4" />} label="Find" />
           </nav>
 
-          {/* User + sign out */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium px-3 py-1 rounded-lg hidden sm:block"
               style={{
@@ -63,7 +61,6 @@ export default async function AppLayout({ children }) {
         </div>
       </header>
 
-      {/* Page content */}
       <main className="flex-1 flex flex-col">
         {children}
       </main>
