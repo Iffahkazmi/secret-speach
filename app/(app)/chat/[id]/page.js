@@ -1,14 +1,17 @@
 import { getConversationAction } from '@/actions/conversations'
+import { getLanguagesAction } from '@/actions/languages'
 import ChatRoom from '@/components/chat/ChatRoom'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
-// Next.js 15: params is now a Promise — must be awaited
 export default async function ChatPage({ params }) {
   const { id } = await params
 
-  const result = await getConversationAction(id)
+  const [result, { languages = [] }] = await Promise.all([
+    getConversationAction(id),
+    getLanguagesAction(),
+  ])
 
   if (result.error) notFound()
 
@@ -16,6 +19,7 @@ export default async function ChatPage({ params }) {
     <ChatRoom
       initialData={result}
       conversationId={id}
+      languages={languages}
     />
   )
 }

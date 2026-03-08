@@ -211,10 +211,10 @@ function LanguageCard({ lang, onEdit, onDelete, isOwner }) {
 
       {/* Rules */}
       <div className="flex flex-wrap gap-1">
-        {(lang.rules ?? []).map(rule => {
+        {(lang.rules ?? []).map((rule, i) => {
           const meta = RULE_TYPES.find(r => r.value === rule.rule_type)
           return (
-            <span key={rule.id} className="text-xs px-2 py-0.5 rounded-full"
+            <span key={rule.id ?? `${rule.rule_type}-${i}`} className="text-xs px-2 py-0.5 rounded-full"
               style={{ background: 'hsl(215 25% 14%)', color: 'hsl(215 20% 55%)', border: '1px solid hsl(215 25% 20%)' }}>
               {meta?.emoji} {meta?.label}
             </span>
@@ -267,7 +267,13 @@ function LanguageEditor({ language, onClose, onCreated, onUpdated }) {
   const [rules, setRules] = useState(language?.rules ?? [])
   const [isPending, startTransition] = useTransition()
 
+  const MAX_RULES = 3
+
   function addRule(ruleType) {
+    if (rules.length >= MAX_RULES) {
+      toast.error(`Maximum ${MAX_RULES} rules per language`)
+      return
+    }
     setRules(prev => [...prev, {
       rule_type: ruleType,
       rule_config: getDefaultConfig(ruleType),
@@ -339,31 +345,18 @@ function LanguageEditor({ language, onClose, onCreated, onUpdated }) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
-          {/* Name & description */}
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 55%)' }}>
-                Language name *
-              </label>
-              <input
-                className="input-field"
-                placeholder="e.g. Dragon Tongue"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 55%)' }}>
-                Description
-              </label>
-              <input
-                className="input-field"
-                placeholder="What makes this language special…"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-              />
-            </div>
+          {/* Name */}
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 55%)' }}>
+              Language name *
+            </label>
+            <input
+              className="input-field"
+              placeholder="e.g. Dragon Tongue"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+            />
           </div>
 
           {/* Rule builder */}
@@ -442,22 +435,47 @@ function LanguageEditor({ language, onClose, onCreated, onUpdated }) {
             )}
 
             {/* Add rule buttons */}
-            <div className="flex flex-wrap gap-1.5">
-              {RULE_TYPES.map(rt => (
-                <button
-                  key={rt.value}
-                  type="button"
-                  onClick={() => addRule(rt.value)}
-                  className="text-xs px-2.5 py-1.5 rounded-lg transition-all duration-150 hover:-translate-y-0.5"
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs" style={{ color: 'hsl(215 20% 45%)' }}>Add rules</span>
+                <span className="text-xs font-mono px-2 py-0.5 rounded-full"
                   style={{
-                    background: 'hsl(215 25% 12%)',
-                    color: 'hsl(215 20% 60%)',
-                    border: '1px solid hsl(215 25% 18%)',
-                  }}
-                >
-                  {rt.emoji} {rt.label}
-                </button>
-              ))}
+                    background: rules.length >= MAX_RULES ? 'hsl(0 84% 40% / 0.15)' : 'hsl(215 25% 12%)',
+                    color: rules.length >= MAX_RULES ? 'hsl(0 84% 65%)' : 'hsl(215 20% 50%)',
+                    border: `1px solid ${rules.length >= MAX_RULES ? 'hsl(0 84% 40% / 0.3)' : 'hsl(215 25% 18%)'}`,
+                  }}>
+                  {rules.length} / {MAX_RULES} rules
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {RULE_TYPES.map(rt => {
+                  const atLimit = rules.length >= MAX_RULES
+                  return (
+                    <button
+                      key={rt.value}
+                      type="button"
+                      onClick={() => addRule(rt.value)}
+                      disabled={atLimit}
+                      className="text-xs px-2.5 py-1.5 rounded-lg transition-all duration-150"
+                      style={{
+                        background: 'hsl(215 25% 12%)',
+                        color: atLimit ? 'hsl(215 20% 30%)' : 'hsl(215 20% 60%)',
+                        border: '1px solid hsl(215 25% 18%)',
+                        cursor: atLimit ? 'not-allowed' : 'pointer',
+                        transform: atLimit ? 'none' : undefined,
+                        opacity: atLimit ? 0.4 : 1,
+                      }}
+                    >
+                      {rt.emoji} {rt.label}
+                    </button>
+                  )
+                })}
+              </div>
+              {rules.length >= MAX_RULES && (
+                <p className="text-xs mt-2" style={{ color: 'hsl(0 84% 55%)' }}>
+                  Maximum {MAX_RULES} rules reached. Remove a rule to add another.
+                </p>
+              )}
             </div>
           </div>
 

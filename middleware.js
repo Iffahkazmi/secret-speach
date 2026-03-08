@@ -6,11 +6,13 @@ export default auth((req) => {
 
   const isAuthPage = pathname.startsWith('/auth')
   const isApiRoute = pathname.startsWith('/api')
+  const isLandingPage = pathname === '/'
 
   if (isApiRoute) return
+  if (isLandingPage) return
 
   if (!isLoggedIn && !isAuthPage) {
-    return Response.redirect(new URL('/auth', req.url))
+    return Response.redirect(new URL('/', req.url))
   }
 
   if (isLoggedIn && isAuthPage) {

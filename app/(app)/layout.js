@@ -48,7 +48,7 @@ export default async function AppLayout({ children }) {
             </span>
             <form action={async () => {
               'use server'
-              await signOut({ redirectTo: '/auth' })
+              await signOut({ redirectTo: '/' })
             }}>
               <button type="submit"
                 className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-red-500/10"
